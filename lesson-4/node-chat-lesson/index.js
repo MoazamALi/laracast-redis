@@ -1,0 +1,35 @@
+var app = require('express')();
+var server = require('http').Server(app);
+var io = require('socket.io')(server, {
+    cors: {
+        origin: 'http://127.0.0.1:8000',
+        methods: ['GET', 'POST']
+    }
+});
+var Redis = require('ioredis');
+var redis = new Redis();
+redis.subscribe('test-channel');
+redis.on('message',(channel,message)=>{
+    console.log(channel,message)
+   message = JSON.parse(message);
+   io.emit(channel+":"+message.event,message.data);
+})
+
+server.listen(3000,()=>{
+    console.log("connecting to server");
+});
+// app.get('/',function(req,res){
+//     res.sendFile(__dirname+"/index.html");
+// });
+
+// io.on('connection',(socket)=>{
+//     console.log("a connection was made.");
+//     socket.on('chat.message',function(message){
+//         console.log('New Message :'+message);
+//         io.emit('chat.message',message);
+//     });
+//     socket.on('disconnect',function(){
+//           console.log('New Message :"User has Disconnected" ');
+//         io.emit('chat.message',"User has Disconnected");
+//     });
+// })

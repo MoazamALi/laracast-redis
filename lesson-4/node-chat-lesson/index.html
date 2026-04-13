@@ -1,0 +1,39 @@
+<html>
+    <head>
+
+    </head>
+    <body id="chat">
+        <h1>Hello World!</h1>
+        <ul id="messages">
+            <li v-for="message in messages">{{message}}</li>
+        </ul>
+        <form @submit.prevent="send">
+            <input v-model="message">
+            <button>Send</button>
+        </form>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.1/socket.io.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.5.22/vue.global.js"></script>
+        <script type="text/javascript">
+            var socket = io();
+            Vue.createApp({
+                data() {
+                    return {
+                        message: '',
+                        messages:[]
+                    }
+                },
+                mounted(){
+                    socket.on('chat.message',(message) => {
+                        this.messages.push(message);
+                    });
+                }, 
+                methods:{
+                    send:function(){
+                        socket.emit('chat.message',this.message);
+                        this.message="";
+                    }
+                }
+            }).mount('#chat')
+        </script>
+    </body>
+</html>
